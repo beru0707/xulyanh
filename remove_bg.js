@@ -1,6 +1,9 @@
 let selectedBgFiles = [];
 let processedBgBlobs = [];
 
+// API Key Remove.bg của bạn
+const REMOVE_BG_API_KEY = 'WYo4ii25rHsNuK4gbV82JDoG';
+
 // Lấy tham chiếu các phần tử HTML
 const bgInput = document.getElementById('bgInput');
 const bgDropzone = document.getElementById('bgDropzone');
@@ -18,34 +21,6 @@ const bgPercentText = document.getElementById('bgPercentText');
 const bgActionsContainer = document.getElementById('bgActionsContainer');
 const btnSendBgToVideo = document.getElementById('btnSendBgToVideo');
 const btnSaveBgToFolder = document.getElementById('btnSaveBgToFolder');
-
-// Lấy hàm xóa nền AI phù hợp với thư viện đã nạp
-let cachedRemoveBgFn = null;
-
-async function getRemoveBgFunction() {
-    if (cachedRemoveBgFn) return cachedRemoveBgFn;
-
-    // Thử nạp ES module từ nhiều CDN, cái nào được thì dùng
-    const urls = [
-        'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.5.5/+esm',
-        'https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.4.5/+esm',
-        'https://esm.sh/@imgly/background-removal@1.5.5'
-    ];
-
-    for (const url of urls) {
-        try {
-            const mod = await import(url);
-            const fn = mod.removeBackground || (mod.default && mod.default.removeBackground) || mod.default;
-            if (typeof fn === 'function') {
-                cachedRemoveBgFn = fn;
-                return fn;
-            }
-        } catch (err) {
-            console.warn('Không nạp được thư viện từ', url, err);
-        }
-    }
-    return null;
-}
 
 // Xử lý Sự kiện Kéo thả / Chọn file
 if (bgDropzone && bgInput) {
@@ -76,22 +51,35 @@ function handleBgFiles(files) {
     if (bgProgressContainer) bgProgressContainer.classList.add('hidden');
 }
 
-// Bắt đầu Xóa nền Hàng loạt
+// Hàm gọi API Remove.bg
+async function removeBgViaAPI(file) {
+    const formData = new FormData();
+    formData.append('image_file', file);
+    formData.append('size', 'auto');
+
+    const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+        method: 'POST',
+        headers: {
+            'X-Api-Key': REMOVE_BG_API_KEY
+        },
+        body: formData
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API Error (${response.status}): ${errorText}`);
+    }
+
+    return await response.blob();
+}
+
+// Bắt đầu Xóa nền Hàng loạt qua Remove.bg API
 if (btnProcessBg) {
     btnProcessBg.addEventListener('click', async () => {
         if (selectedBgFiles.length === 0) return;
 
         btnProcessBg.disabled = true;
         if (bgProgressContainer) bgProgressContainer.classList.remove('hidden');
-        if (bgStatusText) bgStatusText.textContent = 'Đang nạp thư viện AI...';
-
-        const removeBgFn = await getRemoveBgFunction();
-        if (!removeBgFn) {
-            btnProcessBg.disabled = false;
-            alert("Không nạp được thư viện AI xóa nền. Hãy kiểm tra kết nối mạng (cdn.jsdelivr.net) rồi thử lại!");
-            return;
-        }
-
         if (bgActionsContainer) bgActionsContainer.classList.add('hidden');
         if (bgResultsTitle) bgResultsTitle.classList.add('hidden');
         if (bgResultsContainer) bgResultsContainer.innerHTML = '';
@@ -100,18 +88,11 @@ if (btnProcessBg) {
         for (let i = 0; i < selectedBgFiles.length; i++) {
             const file = selectedBgFiles[i];
 
-            if (bgStatusText) bgStatusText.textContent = `Đang xử lý (${i + 1}/${selectedBgFiles.length}): ${file.name}...`;
+            if (bgStatusText) bgStatusText.textContent = `Đang gửi API xử lý (${i + 1}/${selectedBgFiles.length}): ${file.name}...`;
 
             try {
-                // Gọi hàm AI xóa nền
-                const blob = await removeBgFn(file, {
-                    progress: (key, current, total) => {
-                        if (key.includes('fetch') && total > 0) {
-                            const p = Math.round((current / total) * 100);
-                            if (bgStatusText) bgStatusText.textContent = `Đang nạp Model AI (${p}%)...`;
-                        }
-                    }
-                });
+                // Gọi Remove.bg API
+                const blob = await removeBgViaAPI(file);
 
                 // Đổi tên file thành dạng _nobg.png
                 const newFileName = file.name.replace(/\.[^/.]+$/, "") + "_nobg.png";
@@ -135,8 +116,8 @@ if (btnProcessBg) {
                 if (bgResultsContainer) bgResultsContainer.appendChild(imgContainer);
 
             } catch (err) {
-                console.error("Lỗi khi xóa nền ảnh:", file.name, err);
-                alert(`Không thể xóa nền ảnh ${file.name}: ${err.message}`);
+                console.error("Lỗi khi xóa nền ảnh qua Remove.bg API:", file.name, err);
+                alert(`Lỗi khi xử lý ${file.name}: ${err.message}`);
             }
 
             // Cập nhật tiến trình
