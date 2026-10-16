@@ -11,39 +11,52 @@
     <!-- Nhúng file CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex">
 
-    <header class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex items-center justify-between">
-            <h1 class="text-2xl font-bold text-indigo-600 flex items-center gap-2">
-                <i class="fa-solid fa-film"></i> Photo2Video & Sprite Studio
-            </h1>
-            <p class="text-sm text-gray-500">Chạy hoàn toàn trên trình duyệt</p>
+    <!-- ================= SIDEBAR MENU BÊN TRÁI ================= -->
+    <aside id="sidebarNav" class="sidebar-hover-expand fixed top-0 left-0 h-screen bg-white shadow-lg border-r border-gray-200 z-50 flex flex-col justify-between py-4 overflow-hidden transition-all duration-300">
+        
+        <div class="w-full">
+            <!-- Header Logo Sidebar -->
+            <div class="px-4 py-3 flex items-center gap-3 border-b border-gray-100 min-w-[260px]">
+                <i class="fa-solid fa-film text-2xl text-indigo-600 flex-shrink-0"></i>
+                <div class="sidebar-text opacity-0 transition-opacity duration-200 whitespace-nowrap">
+                    <h1 class="text-base font-bold text-indigo-600">Photo2Video & Sprite</h1>
+                    <p class="text-[11px] text-gray-400">Offline Browser Studio</p>
+                </div>
+            </div>
+
+            <!-- Các nút Tab Navigation -->
+            <nav class="mt-4 flex flex-col space-y-1 px-2">
+                <button id="tabCutImage" class="sidebar-tab-btn active" onclick="switchTab('cutImage')">
+                    <i class="fa-solid fa-crop-simple"></i>
+                    <span class="sidebar-text">Cắt ảnh</span>
+                </button>
+                <button id="tabMergeSprite" class="sidebar-tab-btn" onclick="switchTab('mergeSprite')">
+                    <i class="fa-solid fa-table-cells"></i>
+                    <span class="sidebar-text">Ghép Sprite Sheet</span>
+                </button>
+                <button id="tabConvertVideo" class="sidebar-tab-btn" onclick="switchTab('convertVideo')">
+                    <i class="fa-solid fa-video"></i>
+                    <span class="sidebar-text">Convert to Video</span>
+                </button>
+                <button id="tabExtractVideo" class="sidebar-tab-btn" onclick="switchTab('extractVideo')">
+                    <i class="fa-solid fa-file-video"></i>
+                    <span class="sidebar-text">Trích xuất từ Video</span>
+                </button>
+                <button id="tabRemoveBg" class="sidebar-tab-btn" onclick="switchTab('removeBg')">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span class="sidebar-text">Xóa nền hàng loạt</span>
+                </button>
+                <button id="tabConvertToWebp" class="sidebar-tab-btn" onclick="switchTab('convertToWebp')">
+                    <i class="fa-solid fa-file-image"></i>
+                    <span class="sidebar-text">Convert sang WebP</span>
+                </button>
+            </nav>
         </div>
-    </header>
+    </aside>
 
-    <!-- Tabs Navigation -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div class="flex space-x-4 border-b border-gray-200">
-            <button id="tabCutImage" class="tab-btn active focus:outline-none" onclick="switchTab('cutImage')">
-                <i class="fa-solid fa-crop-simple mr-2"></i>1. Cắt ảnh
-            </button>
-            <button id="tabMergeSprite" class="tab-btn focus:outline-none" onclick="switchTab('mergeSprite')">
-                <i class="fa-solid fa-table-cells mr-2"></i>2. Ghép Sprite Sheet
-            </button>
-            <button id="tabConvertVideo" class="tab-btn focus:outline-none" onclick="switchTab('convertVideo')">
-                <i class="fa-solid fa-video mr-2"></i>3. Convert to Video
-            </button>
-            <button id="tabExtractVideo" class="tab-btn focus:outline-none" onclick="switchTab('extractVideo')">
-                <i class="fa-solid fa-file-video mr-2"></i>4. Trích xuất Ảnh từ Video
-            </button>
-            <button id="tabRemoveBg" class="tab-btn focus:outline-none" onclick="switchTab('removeBg')">
-                <i class="fa-solid fa-wand-magic-sparkles mr-2"></i>5. Xóa nền hàng loạt
-            </button>
-        </div>
-    </div>
-
-    <main class="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+    <main class="flex-1 ml-16 p-8 max-w-7xl mx-auto w-full transition-all duration-300">
         
         <!-- ================= TAB 1: CẮT ẢNH ================= -->
         <div id="contentCutImage" class="tab-content active">
@@ -446,6 +459,79 @@
             </div>
         </div>
 
+        <!-- ================= TAB 6: CONVERT SANG WEBP ================= -->
+        <div id="contentConvertToWebp" class="tab-content">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Chuyển đổi Ảnh sang định dạng WebP hàng loạt</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-6">
+                        <!-- Dropzone chọn file -->
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Chọn danh sách ảnh (.png, .jpg, .jpeg, .bmp...)</label>
+                            <div id="webpDropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition-colors hover:bg-gray-50">
+                                <input type="file" id="webpInput" multiple accept="image/*" class="hidden">
+                                <i class="fa-solid fa-file-export text-4xl text-indigo-400 mb-3"></i>
+                                <p class="text-gray-600 font-medium">Kéo thả danh sách ảnh vào đây</p>
+                                <p class="text-sm text-gray-400 mt-1">Đã chọn: <span id="webpCount" class="font-bold text-indigo-600">0</span> ảnh</p>
+                            </div>
+                        </div>
+
+                        <!-- Cấu hình Chuyển đổi -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="flex justify-between text-sm font-medium text-gray-700 mb-2">
+                                    <span>Chất lượng ảnh (Quality)</span>
+                                    <span id="webpQualityDisplay" class="text-indigo-600 font-bold">85%</span>
+                                </label>
+                                <input type="range" id="webpQualitySlider" min="10" max="100" value="85" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Giới hạn cạnh dài tối đa (px)</label>
+                                <input type="number" id="webpMaxDimension" value="2048" placeholder="2048" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                                <p class="text-xs text-gray-400 mt-1">Giữ nguyên hoặc thu nhỏ nếu cạnh dài vượt quá mức này (Giúp tối ưu dung lượng).</p>
+                            </div>
+                        </div>
+
+                        <!-- Nút thực thi -->
+                        <button id="btnProcessWebp" disabled class="w-full py-2.5 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Bắt đầu Chuyển đổi sang WebP
+                        </button>
+
+                        <!-- Progress Bar -->
+                        <div id="webpProgressContainer" class="hidden space-y-2">
+                            <div class="flex justify-between text-xs text-gray-600">
+                                <span id="webpStatusText">Đang xử lý...</span>
+                                <span id="webpPercentText">0%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="webpProgressBar" class="bg-indigo-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Thao tác lưu/tải về -->
+                        <div id="webpActionsContainer" class="hidden pt-2">
+                            <button id="btnSaveWebpToFolder" class="w-full py-2.5 border border-green-600 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-folder-open"></i> Chọn Folder & Lưu toàn bộ tệp WebP
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khung xem trước & kết quả -->
+                    <div>
+                        <h3 id="webpResultsTitle" class="text-lg font-medium text-gray-700 mb-4 hidden">Kết quả chuyển đổi (<span id="webpResultCount">0</span> ảnh)</h3>
+                        <div id="webpResultsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar p-1">
+                            <div id="webpPlaceholder" class="col-span-full border-2 border-dashed border-gray-200 rounded-lg p-12 text-center text-gray-400">
+                                <i class="fa-solid fa-images text-4xl mb-2 opacity-50"></i>
+                                <p>Danh sách ảnh đã convert sẽ hiển thị ở đây</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
@@ -456,5 +542,6 @@
     <script src="sprite_merger.js"></script>
     <script src="extract_video.js"></script> 
     <script src="remove_bg.js"></script>
+    <script src="convert_webp.js"></script>
 </body>
 </html>

@@ -21,18 +21,7 @@
     border-color: #3b82f6;
 }
 
-/* Tab styling */
-.tab-btn {
-    padding: 0.75rem 1.5rem;
-    font-weight: 600;
-    color: #6b7280;
-    border-bottom: 2px solid transparent;
-    transition: all 0.3s;
-}
-.tab-btn.active {
-    color: #4f46e5;
-    border-bottom-color: #4f46e5;
-}
+/* Tab content display */
 .tab-content {
     display: none;
 }
@@ -45,4 +34,73 @@
     max-width: 100%;
     max-height: 300px;
     object-fit: contain;
+}
+
+/* ================= STYLING SIDEBAR BÊN TRÁI (HOVER TO EXPAND) ================= */
+
+/* Trạng thái mặc định: Chiều rộng thu nhỏ (chỉ chứa Icon) */
+.sidebar-hover-expand {
+    width: 4rem; /* 64px */
+}
+
+/* Khi Di chuột vào Sidebar: Mở rộng chiều rộng ra 260px */
+.sidebar-hover-expand:hover {
+    width: 16.25rem; /* 260px */
+}
+
+/* Hiện chữ khi hover vào Sidebar */
+.sidebar-hover-expand:hover .sidebar-text {
+    opacity: 1;
+}
+
+/* Style cho từng nút Tab trong Sidebar */
+.sidebar-tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem; /* 14px */
+    width: 100%;
+    padding: 0.75rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #4b5563; /* gray-600 */
+    transition: all 0.2s ease-in-out;
+    white-space: nowrap;
+}
+
+/* Icon trong nút Sidebar */
+.sidebar-tab-btn i {
+    font-size: 1.25rem;
+    width: 1.5rem;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* Nút Tab khi Hover */
+.sidebar-tab-btn:hover {
+    background-color: #f3f4f6; /* gray-100 */
+    color: #4f46e5; /* indigo-600 */
+}
+
+/* Nút Tab đang Active */
+.sidebar-tab-btn.active {
+    background-color: #eef2ff; /* indigo-50 */
+    color: #4f46e5; /* indigo-600 */
+    font-weight: 600;
+}
+
+.sidebar-text {
+    white-space: nowrap;
+}
+
+/* Mặc định ẩn hẳn chữ khi chưa di chuột vào Sidebar */
+.sidebar-text {
+    display: none;
+    white-space: nowrap;
+}
+
+/* Chỉ hiển thị chữ khi hover vào Sidebar */
+.sidebar-hover-expand:hover .sidebar-text {
+    display: block;
+    opacity: 1;
 }

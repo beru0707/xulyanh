@@ -1,13 +1,13 @@
 function switchTab(tabName) {
     // Reset active ở tất cả nút tab
-    const tabs = ['tabCutImage', 'tabMergeSprite', 'tabConvertVideo', 'tabExtractVideo', 'tabRemoveBg'];
+    const tabs = ['tabCutImage', 'tabMergeSprite', 'tabConvertVideo', 'tabExtractVideo', 'tabRemoveBg', 'tabConvertToWebp'];
     tabs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
     });
     
     // Reset active ở tất cả nội dung tab
-    const contents = ['contentCutImage', 'contentMergeSprite', 'contentConvertVideo', 'contentExtractVideo', 'contentRemoveBg'];
+    const contents = ['contentCutImage', 'contentMergeSprite', 'contentConvertVideo', 'contentExtractVideo', 'contentRemoveBg', 'contentConvertToWebp'];
     contents.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
@@ -19,7 +19,8 @@ function switchTab(tabName) {
         'mergeSprite': ['tabMergeSprite', 'contentMergeSprite'],
         'convertVideo': ['tabConvertVideo', 'contentConvertVideo'],
         'extractVideo': ['tabExtractVideo', 'contentExtractVideo'],
-        'removeBg': ['tabRemoveBg', 'contentRemoveBg']
+        'removeBg': ['tabRemoveBg', 'contentRemoveBg'],
+        'convertToWebp': ['tabConvertToWebp', 'contentConvertToWebp']
     };
 
     if (tabMap[tabName]) {
