@@ -1,13 +1,29 @@
 function switchTab(tabName) {
     // Reset active ở tất cả nút tab
-    const tabs = ['tabCutImage', 'tabMergeSprite', 'tabConvertVideo', 'tabExtractVideo', 'tabRemoveBg', 'tabConvertToWebp'];
+    const tabs = [
+        'tabCutImage', 
+        'tabMergeSprite', 
+        'tabConvertVideo', 
+        'tabExtractVideo', 
+        'tabRemoveBg', 
+        'tabConvertToWebp',
+        'tabFlipImage'
+    ];
     tabs.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
     });
     
     // Reset active ở tất cả nội dung tab
-    const contents = ['contentCutImage', 'contentMergeSprite', 'contentConvertVideo', 'contentExtractVideo', 'contentRemoveBg', 'contentConvertToWebp'];
+    const contents = [
+        'contentCutImage', 
+        'contentMergeSprite', 
+        'contentConvertVideo', 
+        'contentExtractVideo', 
+        'contentRemoveBg', 
+        'contentConvertToWebp',
+        'contentFlipImage'
+    ];
     contents.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.remove('active');
@@ -20,7 +36,8 @@ function switchTab(tabName) {
         'convertVideo': ['tabConvertVideo', 'contentConvertVideo'],
         'extractVideo': ['tabExtractVideo', 'contentExtractVideo'],
         'removeBg': ['tabRemoveBg', 'contentRemoveBg'],
-        'convertToWebp': ['tabConvertToWebp', 'contentConvertToWebp']
+        'convertToWebp': ['tabConvertToWebp', 'contentConvertToWebp'],
+        'flipImage': ['tabFlipImage', 'contentFlipImage']
     };
 
     if (tabMap[tabName]) {
