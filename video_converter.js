@@ -82,32 +82,42 @@ btnSliceSprite.addEventListener('click', () => {
     sliceSpriteToFrames(loadedSpriteImg, rows, cols);
 });
 
-function sliceSpriteToFrames(img, rows, cols) {
+async function sliceSpriteToFrames(img, rows, cols) {
     const tileW = img.width / cols;
     const tileH = img.height / rows;
     
-    const slicedFiles = [];
-    let count = 0;
+    // Tạo danh sách các Promise xử lý từng ô theo đúng thứ tự
+    const framePromises = [];
 
-    for(let r = 0; r < rows; r++) {
-        for(let c = 0; c < cols; c++) {
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            const index = r * cols + c; // Chỉ số thứ tự chuẩn từ trái sang phải, trên xuống dưới
+            
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = tileW;
             tempCanvas.height = tileH;
             const tCtx = tempCanvas.getContext('2d');
             tCtx.drawImage(img, c * tileW, r * tileH, tileW, tileH, 0, 0, tileW, tileH);
-            
-            tempCanvas.toBlob((blob) => {
-                const file = new File([blob], `frame_${count + 1}.png`, { type: 'image/png' });
-                slicedFiles.push(file);
-                if (slicedFiles.length === rows * cols) {
-                    clearAllImages();
-                    handleFiles(slicedFiles);
-                }
-            }, 'image/png');
-            count++;
+
+            const promise = new Promise((resolve) => {
+                tempCanvas.toBlob((blob) => {
+                    const file = new File([blob], `frame_${index + 1}.png`, { type: 'image/png' });
+                    resolve({ index, file });
+                }, 'image/png');
+            });
+
+            framePromises.push(promise);
         }
     }
+
+    // Chờ tất cả các ô cắt xong và sắp xếp chuẩn xác 100%
+    const results = await Promise.all(framePromises);
+    results.sort((a, b) => a.index - b.index);
+
+    const sortedFiles = results.map(item => item.file);
+
+    clearAllImages();
+    handleFiles(sortedFiles);
 }
 
 function clearCanvas() {
