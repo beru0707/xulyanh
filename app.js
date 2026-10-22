@@ -62,3 +62,22 @@ document.addEventListener('DOMContentLoaded', () => {
         switchTab(savedTab);
     }
 });
+
+// ================= CHẾ ĐỘ SÁNG / TỐI =================
+function applyTheme(theme) {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    const icon = document.getElementById('themeToggleIcon');
+    if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    applyTheme(document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    const btn = document.getElementById('themeToggle');
+    if (btn) {
+        btn.addEventListener('click', () => {
+            const next = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+            applyTheme(next);
+            try { localStorage.setItem('photoToolTheme', next); } catch (e) {}
+        });
+    }
+});

@@ -4,6 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="favicon.png">
+    <script>
+        (function () {
+            try {
+                var t = localStorage.getItem('photoToolTheme');
+                if (!t) t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                if (t === 'dark') document.documentElement.classList.add('dark');
+            } catch (e) {}
+        })();
+    </script>
     <title>Trình tạo Video & Sprite Sheet từ Ảnh</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -11,7 +20,7 @@
     <!-- Nhúng file CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex">
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen flex pl-16">
 
     <!-- ================= SIDEBAR MENU BÊN TRÁI ================= -->
     <aside id="sidebarNav" class="sidebar-hover-expand fixed top-0 left-0 h-screen bg-white shadow-lg border-r border-gray-200 z-50 flex flex-col justify-between py-4 overflow-hidden transition-all duration-300">
@@ -64,7 +73,13 @@
         </div>
     </aside>
 
-    <main class="flex-1 ml-16 p-8 max-w-7xl mx-auto w-full transition-all duration-300">
+    <!-- Nút Sáng / Tối (góc trên bên phải) -->
+    <button id="themeToggle" type="button" title="Chuyển giao diện Sáng / Tối" aria-label="Chuyển giao diện Sáng / Tối"
+        class="fixed top-4 right-4 z-40 w-10 h-10 rounded-full bg-white border border-gray-200 shadow-md flex items-center justify-center text-gray-600 hover:text-indigo-600 transition">
+        <i id="themeToggleIcon" class="fa-solid fa-moon"></i>
+    </button>
+
+    <main class="flex-1 p-8 pt-16 max-w-7xl mx-auto w-full min-w-0">
         
         <!-- ================= TAB 1: CẮT ẢNH ================= -->
         <div id="contentCutImage" class="tab-content active">
