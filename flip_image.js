@@ -53,7 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
     btnProcessFlip.addEventListener('click', async () => {
         if (selectedFlipFiles.length === 0) return;
 
-        const direction = document.querySelector('input[name="flipDirection"]:checked').value; // 'horizontal' hoặc 'vertical'
+        const direction = document.querySelector('input[name="flipDirection"]:checked').value; // 'horizontal' | 'vertical' | 'rotate'
+        let angle = parseFloat(document.getElementById('flipRotateAngle').value);
+        if (isNaN(angle)) angle = 45;
+        const options = { angle };
 
         btnProcessFlip.disabled = true;
         flipProgressContainer.classList.remove('hidden');
@@ -73,15 +76,15 @@ document.addEventListener('DOMContentLoaded', () => {
             flipStatusText.textContent = `Đang xử lý: ${file.name}`;
 
             try {
-                const flippedBlob = await flipSingleImage(file, direction);
+                const flippedBlob = await flipSingleImage(file, direction, options);
                 processedFlipResults.push({
-                    name: getFlippedFileName(file.name, direction),
+                    name: getFlippedFileName(file.name, direction, options),
                     blob: flippedBlob,
                     originalName: file.name
                 });
 
                 // Render Thumbnail Preview
-                renderFlipThumbnail(flippedBlob, file.name);
+                renderFlipThumbnail(flippedBlob, file.name, getFlippedFileName(file.name, direction, options));
 
             } catch (err) {
                 console.error(`Lỗi khi xử lý ảnh ${file.name}:`, err);
@@ -95,34 +98,48 @@ document.addEventListener('DOMContentLoaded', () => {
         btnProcessFlip.disabled = false;
     });
 
-    // Hàm đọc & lật 1 ảnh bằng Canvas
-    function flipSingleImage(file, direction) {
+    // Hàm đọc & lật / xoay 1 ảnh bằng Canvas
+    function flipSingleImage(file, direction, options) {
         return new Promise((resolve, reject) => {
             const img = new Image();
             const url = URL.createObjectURL(file);
 
             img.onload = () => {
                 const canvas = document.createElement('canvas');
-                canvas.width = img.width;
-                canvas.height = img.height;
                 const ctx = canvas.getContext('2d');
+                const isRotate = direction === 'rotate';
 
-                ctx.save();
-                if (direction === 'horizontal') {
-                    // Lật ngang
-                    ctx.scale(-1, 1);
-                    ctx.drawImage(img, -img.width, 0, img.width, img.height);
+                if (isRotate) {
+                    // Xoay: mở rộng canvas vừa đủ chứa toàn bộ ảnh sau khi xoay
+                    const rad = (options.angle * Math.PI) / 180;
+                    const sin = Math.abs(Math.sin(rad));
+                    const cos = Math.abs(Math.cos(rad));
+                    canvas.width = Math.ceil(img.width * cos + img.height * sin);
+                    canvas.height = Math.ceil(img.width * sin + img.height * cos);
+
+                    ctx.imageSmoothingEnabled = true;
+                    ctx.imageSmoothingQuality = 'high';
+                    ctx.translate(canvas.width / 2, canvas.height / 2);
+                    ctx.rotate(rad);
+                    ctx.drawImage(img, -img.width / 2, -img.height / 2, img.width, img.height);
                 } else {
-                    // Lật dọc
-                    ctx.scale(1, -1);
-                    ctx.drawImage(img, 0, -img.height, img.width, img.height);
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.save();
+                    if (direction === 'horizontal') {
+                        ctx.scale(-1, 1);
+                        ctx.drawImage(img, -img.width, 0, img.width, img.height);
+                    } else {
+                        ctx.scale(1, -1);
+                        ctx.drawImage(img, 0, -img.height, img.width, img.height);
+                    }
+                    ctx.restore();
                 }
-                ctx.restore();
 
                 URL.revokeObjectURL(url);
 
-                // Giữ nguyên mimeType gốc nếu có thể, mặc định png nếu trong suốt
-                const outputType = file.type === 'image/jpeg' ? 'image/jpeg' : 'image/png';
+                // Xoay luôn xuất PNG để giữ nền trong suốt ở các góc; lật giữ định dạng JPEG gốc
+                const outputType = (!isRotate && file.type === 'image/jpeg') ? 'image/jpeg' : 'image/png';
                 canvas.toBlob((blob) => {
                     if (blob) resolve(blob);
                     else reject(new Error('Lỗi chuyển đổi Blob'));
@@ -135,16 +152,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Tạo tên file mới
-    function getFlippedFileName(originalName, direction) {
+    function getFlippedFileName(originalName, direction, options) {
         const extIndex = originalName.lastIndexOf('.');
         const baseName = extIndex !== -1 ? originalName.substring(0, extIndex) : originalName;
-        const ext = extIndex !== -1 ? originalName.substring(extIndex) : '.png';
-        const suffix = direction === 'horizontal' ? '_flipped_h' : '_flipped_v';
+        let ext = extIndex !== -1 ? originalName.substring(extIndex) : '.png';
+        let suffix;
+        if (direction === 'rotate') {
+            const ang = String(options.angle).replace('-', 'm').replace('.', '_');
+            suffix = `_rot${ang}`;
+            ext = '.png';
+        } else {
+            suffix = direction === 'horizontal' ? '_flipped_h' : '_flipped_v';
+        }
         return `${baseName}${suffix}${ext}`;
     }
 
     // Render Preview
-    function renderFlipThumbnail(blob, originalName) {
+    function renderFlipThumbnail(blob, originalName, outputName) {
         if (flipPlaceholder) flipPlaceholder.classList.add('hidden');
 
         const url = URL.createObjectURL(blob);
@@ -154,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
         card.innerHTML = `
             <img src="${url}" class="w-full h-24 object-contain rounded bg-gray-50 mb-2 border">
             <span class="text-[11px] text-gray-600 truncate w-full text-center">${originalName}</span>
-            <a href="${url}" download="${getFlippedFileName(originalName, 'horizontal')}" class="mt-1 text-xs text-indigo-600 hover:underline">Tải ảnh</a>
+            <a href="${url}" download="${outputName}" class="mt-1 text-xs text-indigo-600 hover:underline">Tải ảnh</a>
         `;
         flipResultsContainer.appendChild(card);
     }

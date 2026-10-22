@@ -558,13 +558,13 @@
         <!-- ================= TAB 7: ĐẢO / LẬT ẢNH HÀNG LOẠT ================= -->
         <div id="contentFlipImage" class="tab-content">
             <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                <h2 class="text-xl font-semibold mb-4 text-gray-700">Đảo ngược / Lật ảnh hàng loạt (Flip / Mirror)</h2>
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Lật / Xoay ảnh hàng loạt (Flip / Rotate)</h2>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div class="space-y-6">
                         <!-- Dropzone chọn file -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Chọn danh sách ảnh cần lật</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">1. Chọn danh sách ảnh cần lật / xoay</label>
                             <div id="flipDropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition-colors hover:bg-gray-50">
                                 <input type="file" id="flipInput" multiple accept="image/*" class="hidden">
                                 <i class="fa-solid fa-arrows-left-right text-4xl text-indigo-400 mb-3"></i>
@@ -575,7 +575,7 @@
 
                         <!-- Chế độ Lật -->
                         <div class="space-y-4">
-                            <label class="block text-sm font-medium text-gray-700">2. Chọn hướng lật ảnh</label>
+                            <label class="block text-sm font-medium text-gray-700">2. Chọn kiểu biến đổi</label>
                             <div class="grid grid-cols-2 gap-3">
                                 <label class="flex items-center p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
                                     <input type="radio" name="flipDirection" value="horizontal" checked class="text-indigo-600 focus:ring-indigo-500">
@@ -585,12 +585,19 @@
                                     <input type="radio" name="flipDirection" value="vertical" class="text-indigo-600 focus:ring-indigo-500">
                                     <span class="ml-2 text-sm text-gray-700 font-medium">Lật Dọc (Đảo ngược)</span>
                                 </label>
+                                <label class="col-span-2 flex items-center gap-2 p-3 border rounded-lg cursor-pointer hover:bg-gray-50 transition">
+                                    <input type="radio" name="flipDirection" value="rotate" class="text-indigo-600 focus:ring-indigo-500">
+                                    <span class="ml-1 text-sm text-gray-700 font-medium"><i class="fa-solid fa-rotate-right text-indigo-500"></i> Xoay ảnh</span>
+                                    <input type="number" id="flipRotateAngle" value="45" min="-360" max="360" step="1" class="ml-auto w-20 border border-gray-300 rounded-md px-2 py-1 text-sm text-center focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                    <span class="text-sm text-gray-500">độ</span>
+                                </label>
+                                <p class="col-span-2 text-xs text-gray-400 -mt-1">Góc dương xoay theo chiều kim đồng hồ, góc âm xoay ngược lại. Ảnh xoay được xuất PNG, phần góc trống trong suốt.</p>
                             </div>
                         </div>
 
                         <!-- Nút thực thi -->
                         <button id="btnProcessFlip" disabled class="w-full py-2.5 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-bolt"></i> Bắt đầu Lật ảnh
+                            <i class="fa-solid fa-bolt"></i> Bắt đầu Lật / Xoay ảnh
                         </button>
 
                         <!-- Progress Bar -->
@@ -607,7 +614,7 @@
                         <!-- Thao tác lưu/tải về -->
                         <div id="flipActionsContainer" class="hidden pt-2">
                             <button id="btnSaveFlipToFolder" class="w-full py-2.5 border border-green-600 bg-green-600 text-white rounded-md font-medium hover:bg-green-700 transition flex items-center justify-center gap-2 shadow-sm">
-                                <i class="fa-solid fa-folder-open"></i> Chọn Thư mục & Lưu toàn bộ ảnh đã lật
+                                <i class="fa-solid fa-folder-open"></i> Chọn Thư mục & Lưu toàn bộ ảnh đã xử lý
                             </button>
                         </div>
                     </div>
@@ -618,7 +625,7 @@
                         <div id="flipResultsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto custom-scrollbar p-1">
                             <div id="flipPlaceholder" class="col-span-full border-2 border-dashed border-gray-200 rounded-lg p-12 text-center text-gray-400">
                                 <i class="fa-solid fa-images text-4xl mb-2 opacity-50"></i>
-                                <p>Ảnh sau khi lật sẽ hiển thị tại đây</p>
+                                <p>Ảnh sau khi lật / xoay sẽ hiển thị tại đây</p>
                             </div>
                         </div>
                     </div>
