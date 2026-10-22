@@ -7,7 +7,7 @@
     <title>Trình tạo Video & Sprite Sheet từ Ảnh</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <!-- Nhúng file CSS -->
     <link rel="stylesheet" href="style.css">
 </head>
@@ -55,6 +55,10 @@
                 <button id="tabFlipImage" class="sidebar-tab-btn" onclick="switchTab('flipImage')">
                     <i class="fa-solid fa-arrows-left-right"></i>
                     <span class="sidebar-text">Lật ảnh hàng loạt</span>
+                </button>
+                <button id="tabAntiDup" class="sidebar-tab-btn" onclick="switchTab('antiDup')">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span class="sidebar-text">Chống Trùng Lặp Ảnh</span>
                 </button>
             </nav>
         </div>
@@ -607,6 +611,90 @@
             </div>
         </div>
 
+        <!-- ================= TAB 8: CHỐNG TRÙNG LẶP ẢNH ================= -->
+        <div id="contentAntiDup" class="tab-content">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-700">Làm mới ảnh & Chống nhận diện trùng lặp</h2>
+                    <span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs font-semibold">
+                        <i class="fa-solid fa-shield-halved mr-1"></i> Client-Side Secure
+                    </span>
+                </div>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- Bảng Điều Khiển Thông Số -->
+                    <div class="lg:col-span-4 space-y-6">
+                        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3 flex items-center">
+                                <i class="fa-solid fa-sliders mr-2 text-indigo-500"></i> Cấu hình chống trùng lặp
+                            </h3>
+                            
+                            <!-- Tham số chỉnh sửa -->
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="text-sm font-medium text-gray-700">Resize (Tùy biến)</label>
+                                    <span id="antiDup-val-resize" class="text-xs font-mono bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">±1.5%</span>
+                                </div>
+                                <input type="range" id="antiDup-param-resize" min="0" max="3" step="0.5" value="1.5" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('antiDup-val-resize').textContent = '±' + this.value + '%'">
+                            </div>
+
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="text-sm font-medium text-gray-700">Micro Crop (Cắt viền)</label>
+                                    <span id="antiDup-val-crop" class="text-xs font-mono bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">1 px</span>
+                                </div>
+                                <input type="range" id="antiDup-param-crop" min="0" max="5" step="1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('antiDup-val-crop').textContent = this.value + ' px'">
+                            </div>
+
+                            <div class="bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label class="text-sm font-medium text-gray-700">Noise Injection (Nhiễu ẩn)</label>
+                                    <span id="antiDup-val-noise" class="text-xs font-mono bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Cấp 1</span>
+                                </div>
+                                <input type="range" id="antiDup-param-noise" min="0" max="3" step="1" value="1" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-indigo-600" oninput="document.getElementById('antiDup-val-noise').textContent = ['Tắt', 'Cấp 1', 'Cấp 2', 'Cấp 3'][this.value]">
+                            </div>
+
+                            <div class="flex items-center justify-between bg-white p-3 rounded-lg border border-gray-100 shadow-sm">
+                                <div>
+                                    <label class="text-sm font-medium text-gray-700 block">Xóa siêu dữ liệu EXIF</label>
+                                    <span class="text-[11px] text-gray-500">Xóa thời gian, máy ảnh...</span>
+                                </div>
+                                <input type="checkbox" id="antiDup-param-exif" checked class="w-5 h-5 accent-indigo-600 rounded cursor-pointer">
+                            </div>
+
+                            <button id="btnProcessAntiDup" disabled class="w-full mt-4 py-2.5 bg-indigo-600 text-white rounded-md font-medium hover:bg-indigo-700 disabled:opacity-50 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Xử Lý & Làm Mới Ảnh
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Khu vực Dropzone & Gallery -->
+                    <div class="lg:col-span-8 flex flex-col">
+                        <div id="antiDupDropzone" class="border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer transition-colors hover:bg-gray-50 mb-4">
+                            <input type="file" id="antiDupInput" multiple accept="image/*" class="hidden">
+                            <i class="fa-solid fa-images text-4xl text-indigo-400 mb-3"></i>
+                            <p class="text-gray-600 font-medium">Kéo thả ảnh cần làm mới vào đây</p>
+                            <p class="text-sm text-gray-400 mt-1">Đã chọn: <span id="antiDupCount" class="font-bold text-indigo-600">0</span> ảnh</p>
+                        </div>
+
+                        <div class="flex justify-between items-center bg-gray-50 p-2 rounded-lg border border-gray-200 mb-4">
+                            <span class="text-sm font-medium text-gray-600 pl-2">Số ảnh đã xử lý thành công: <strong id="antiDupProcessedCount" class="text-green-600">0</strong></span>
+                            <button id="btnSaveAntiDupToFolder" disabled class="py-1.5 px-4 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 disabled:opacity-50 transition flex items-center gap-2">
+                                <i class="fa-solid fa-folder-open"></i> Lưu tất cả về máy
+                            </button>
+                        </div>
+
+                        <div id="antiDupResultsContainer" class="grid grid-cols-2 sm:grid-cols-3 gap-4 overflow-y-auto max-h-[400px] p-1 custom-scrollbar">
+                            <div id="antiDupEmptyState" class="col-span-full py-10 text-center text-gray-400">
+                                <i class="fa-regular fa-image text-3xl mb-2 opacity-50"></i>
+                                <p class="text-sm">Chưa có ảnh nào được tải lên.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.11.6/dist/ffmpeg.min.js"></script>
@@ -619,5 +707,6 @@
     <script src="remove_bg.js"></script>
     <script src="convert_webp.js"></script>
     <script src="flip_image.js"></script>
+    <script src="antidup_image.js"></script>
 </body>
 </html>

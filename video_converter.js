@@ -86,12 +86,13 @@ async function sliceSpriteToFrames(img, rows, cols) {
     const tileW = img.width / cols;
     const tileH = img.height / rows;
     
-    // Tạo danh sách các Promise xử lý từng ô theo đúng thứ tự
+    // Mảng chứa các Promise để quản lý việc cắt ảnh
     const framePromises = [];
 
     for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
-            const index = r * cols + c; // Chỉ số thứ tự chuẩn từ trái sang phải, trên xuống dưới
+            // Tĩnh toán chỉ số theo đúng thứ tự 1, 2, 3...
+            const index = r * cols + c;
             
             const tempCanvas = document.createElement('canvas');
             tempCanvas.width = tileW;
@@ -102,6 +103,7 @@ async function sliceSpriteToFrames(img, rows, cols) {
             const promise = new Promise((resolve) => {
                 tempCanvas.toBlob((blob) => {
                     const file = new File([blob], `frame_${index + 1}.png`, { type: 'image/png' });
+                    // Lưu lại index gốc để sắp xếp lại chính xác
                     resolve({ index, file });
                 }, 'image/png');
             });
@@ -110,7 +112,7 @@ async function sliceSpriteToFrames(img, rows, cols) {
         }
     }
 
-    // Chờ tất cả các ô cắt xong và sắp xếp chuẩn xác 100%
+    // Chờ tất cả các ô hoàn thành và sắp xếp chuẩn theo chỉ số index
     const results = await Promise.all(framePromises);
     results.sort((a, b) => a.index - b.index);
 
@@ -121,8 +123,8 @@ async function sliceSpriteToFrames(img, rows, cols) {
 }
 
 function clearCanvas() {
-    ctx.fillStyle = '#000000'; 
-    ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+    // Xóa sạch canvas để giữ nền trong suốt hoàn toàn
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 clearCanvas();
 
@@ -248,7 +250,8 @@ function drawFrame(index) {
     frameCounter.textContent = `${index + 1} / ${imageFiles.length}`;
     
     const img = imageFiles[index].img;
-    clearCanvas();
+    clearCanvas(); // Xóa khung hình cũ
+
     const scale = Math.min(CANVAS_WIDTH / img.width, CANVAS_HEIGHT / img.height);
     const w = img.width * scale;
     const h = img.height * scale;
@@ -339,10 +342,18 @@ exportBtn.addEventListener('click', async () => {
     
     recordedChunks = [];
     const stream = canvas.captureStream(currentFPS);
-    const options = { mimeType: 'video/webm; codecs=vp9' };
     
-    try { mediaRecorder = new MediaRecorder(stream, options); } 
-    catch (e) { mediaRecorder = new MediaRecorder(stream); }
+    // Cấu hình Codec hỗ trợ nền trong suốt (Alpha Channel)
+    let options = { mimeType: 'video/webm; codecs=vp9' };
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options = { mimeType: 'video/webm; codecs=vp8' };
+    }
+
+    try { 
+        mediaRecorder = new MediaRecorder(stream, options); 
+    } catch (e) { 
+        mediaRecorder = new MediaRecorder(stream); 
+    }
 
     mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
     mediaRecorder.onstop = () => {
@@ -351,7 +362,7 @@ exportBtn.addEventListener('click', async () => {
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = `SlideVideo_${currentFPS}fps.webm`;
+        a.download = `SpriteVideo_Transparent_${currentFPS}fps.webm`;
         document.body.appendChild(a);
         a.click();
         setTimeout(() => { document.body.removeChild(a); window.URL.revokeObjectURL(url); }, 100);

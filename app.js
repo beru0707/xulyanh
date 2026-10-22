@@ -7,7 +7,8 @@ function switchTab(tabName) {
         'tabExtractVideo', 
         'tabRemoveBg', 
         'tabConvertToWebp',
-        'tabFlipImage'
+        'tabFlipImage',
+        'tabAntiDup'
     ];
     tabs.forEach(id => {
         const el = document.getElementById(id);
@@ -22,7 +23,8 @@ function switchTab(tabName) {
         'contentExtractVideo', 
         'contentRemoveBg', 
         'contentConvertToWebp',
-        'contentFlipImage'
+        'contentFlipImage',
+        'contentAntiDup'
     ];
     contents.forEach(id => {
         const el = document.getElementById(id);
@@ -37,7 +39,8 @@ function switchTab(tabName) {
         'extractVideo': ['tabExtractVideo', 'contentExtractVideo'],
         'removeBg': ['tabRemoveBg', 'contentRemoveBg'],
         'convertToWebp': ['tabConvertToWebp', 'contentConvertToWebp'],
-        'flipImage': ['tabFlipImage', 'contentFlipImage']
+        'flipImage': ['tabFlipImage', 'contentFlipImage'],
+        'antiDup': ['tabAntiDup', 'contentAntiDup']
     };
 
     if (tabMap[tabName]) {
@@ -46,5 +49,16 @@ function switchTab(tabName) {
         const contentEl = document.getElementById(contentId);
         if (tabEl) tabEl.classList.add('active');
         if (contentEl) contentEl.classList.add('active');
+
+        // DÒNG MỚI THÊM VÀO: Lưu tên tab vào bộ nhớ trình duyệt
+        localStorage.setItem('activePhotoToolTab', tabName);
     }
 }
+
+// Tự động khôi phục tab khi tải lại trang
+document.addEventListener('DOMContentLoaded', () => {
+    const savedTab = localStorage.getItem('activePhotoToolTab');
+    if (savedTab) {
+        switchTab(savedTab);
+    }
+});
